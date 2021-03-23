@@ -1,8 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/material.dart';
+
+import 'detect.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,13 +29,6 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class OutputLine {
-  final String data;
-  final bool isError;
-
-  OutputLine(this.data, this.isError);
-}
-
 class _MyHomePageState extends State<MyHomePage> {
   List<OutputLine> lines = [];
 
@@ -52,45 +46,19 @@ class _MyHomePageState extends State<MyHomePage> {
     var properties = File(filePickerCross.path).readAsLinesSync().map((property) => '--$property');
     detectArgs.addAll(properties);
 
+    var detectRunner = DetectRunner();
+
     print("Downloading Detect");
-    var detectShFile = await downloadDetect();
+    var detectShFile = await detectRunner.downloadDetect();
 
     print("Starting Detect");
-    var process = await runDetect(detectShFile, detectArgs);
+    var process = await detectRunner.runDetect(detectShFile, detectArgs, (newData) {
+      setState(() {
+        lines.add(newData);
+        _scrollToBottom();
+      });
+    });
     print("Exit Code: ${process.exitCode}");
-  }
-
-  Future<File> downloadDetect() async {
-    var detectShFile = File('detect.sh');
-    var request = await HttpClient().getUrl(Uri.parse('https://detect.synopsys.com/detect.sh'));
-    var response = await request.close();
-    response.pipe(detectShFile.openWrite());
-
-    await Process.run("chmod", ["+x", "--", detectShFile.absolute.path]);
-
-    return detectShFile;
-  }
-
-  Future<Process> runDetect(File detectShFile, List<String> detectArgs) async {
-    var process = await Process.start(detectShFile.absolute.path, detectArgs);
-
-    process.stdout.transform(utf8.decoder).listen((data) {
-      print(data);
-      setState(() {
-        var containsWarning = data.contains("WARN");
-        lines.add(OutputLine(data, containsWarning));
-        _scrollToBottom();
-      });
-    });
-    process.stderr.transform(utf8.decoder).listen((data) {
-      print(data);
-      setState(() {
-        lines.add(OutputLine(data, true));
-        _scrollToBottom();
-      });
-    });
-
-    return process;
   }
 
   ScrollController _scrollController = ScrollController();
