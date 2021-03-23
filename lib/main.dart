@@ -2,7 +2,12 @@ import 'dart:io';
 
 import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/material.dart';
+import 'package:synopsys_detect_app/bdio/bdio_extractor.dart';
+import 'package:synopsys_detect_app/bdio/bdio_finder.dart';
+import 'package:synopsys_detect_app/bdio/bdio_parser.dart';
+import 'package:synopsys_detect_app/bdio/bdio_viewer.dart';
 
+import 'bdio/model/entry.dart';
 import 'detect.dart';
 
 void main() {
@@ -31,6 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<OutputLine> lines = [];
+  List<Entry> bdioEntries = [];
 
   void _runScan() async {
     print("Asking for source");
@@ -58,30 +64,60 @@ class _MyHomePageState extends State<MyHomePage> {
         _scrollToBottom();
       });
     });
-    print("Exit Code: ${process.exitCode}");
+
+    print("Exit Code: ${await process.exitCode}");
+
+    // BDIO 2 parsing
+
+    BdioFinder bdioFinder = BdioFinder();
+    BdioExtractor bdioExtractor = BdioExtractor();
+    BdioParser bdioParser = BdioParser();
+
+    var bdioFiles = bdioFinder.findMostRecentBdio(Directory("/Users/jakem/blackduck/runs"));
+    var outputDirectory = Directory("out/");
+
+    setState(() {
+      bdioEntries = [];
+      for (var bdio2File in bdioFiles) {
+        bdioExtractor.extractBdio(bdio2File, outputDirectory);
+        var entryFiles = bdioFinder.findEntryFiles(outputDirectory);
+        bdioEntries.addAll(bdioParser.parseEntryFiles(entryFiles));
+      }
+    });
   }
 
   ScrollController _scrollController = ScrollController();
   _scrollToBottom() {
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
   }
 
   @override
   Widget build(BuildContext context) {
+    var bdioWidget = BdioViewer(bdioEntries: bdioEntries);
+
     var textWidgets = lines.map((line) {
       var textStyle = TextStyle(color: line.isError ? Colors.red : Colors.black);
       return Text(line.data, style: textStyle);
     }).toList();
 
+    List<Widget> widgets = [];
+
+    var detectOutput = Expanded(
+        child: ListView(
+      shrinkWrap: true,
+      children: textWidgets,
+      controller: _scrollController,
+    ));
+
+    widgets.add(detectOutput);
+    widgets.add(bdioWidget);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: ListView(
-          children: textWidgets,
-          controller: _scrollController,
-        ),
+      body: Column(
+        children: widgets,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _runScan,
