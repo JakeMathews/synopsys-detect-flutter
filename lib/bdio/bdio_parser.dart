@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:synopsys_detect_app/bdio/model/entry.dart';
+import 'package:synopsys_detect_app/bdio/model/bdio_entry.dart';
 
 class BdioParser {
   List<Entry> parseEntryFiles(List<File> entryFiles) {

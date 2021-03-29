@@ -1,13 +1,8 @@
-import 'dart:io';
-
-import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/material.dart';
-import 'package:synopsys_detect_app/bdio/bdio_extractor.dart';
-import 'package:synopsys_detect_app/bdio/bdio_finder.dart';
-import 'package:synopsys_detect_app/bdio/bdio_parser.dart';
+import 'package:synopsys_detect_app/bdio/bdio_service.dart';
 import 'package:synopsys_detect_app/bdio/bdio_viewer.dart';
 
-import 'bdio/model/entry.dart';
+import 'bdio/model/bdio_entry.dart';
 import 'detect.dart';
 
 void main() {
@@ -39,56 +34,23 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Entry> bdioEntries = [];
 
   void _runScan() async {
-    print("Asking for source");
-    var filePickerCross = await FilePickerCross.importFromStorage(type: FileTypeCross.any);
-
-    var directory = filePickerCross.directory;
-    if (directory.startsWith("//")) {
-      directory = directory.substring(1);
-    }
-    print("Source directory: $directory");
-
-    var detectArgs = ['--detect.source.path=$directory'];
-    var properties = File(filePickerCross.path).readAsLinesSync().map((property) => '--$property');
-    detectArgs.addAll(properties);
-
     var detectRunner = DetectRunner();
-
-    print("Downloading Detect");
-    var detectShFile = await detectRunner.downloadDetect();
-
-    print("Starting Detect");
-    var process = await detectRunner.runDetect(detectShFile, detectArgs, (newData) {
+    await detectRunner.runScan((OutputLine newData) {
       setState(() {
         lines.add(newData);
         _scrollToBottom();
       });
     });
 
-    print("Exit Code: ${await process.exitCode}");
-
-    // BDIO 2 parsing
-
-    BdioFinder bdioFinder = BdioFinder();
-    BdioExtractor bdioExtractor = BdioExtractor();
-    BdioParser bdioParser = BdioParser();
-
-    var bdioFiles = bdioFinder.findMostRecentBdio(Directory("/Users/jakem/blackduck/runs"));
-    var outputDirectory = Directory("out/");
-
+    var bdioService = BdioService();
     setState(() {
-      bdioEntries = [];
-      for (var bdio2File in bdioFiles) {
-        bdioExtractor.extractBdio(bdio2File, outputDirectory);
-        var entryFiles = bdioFinder.findEntryFiles(outputDirectory);
-        bdioEntries.addAll(bdioParser.parseEntryFiles(entryFiles));
-      }
+      bdioEntries = bdioService.findMostRecentBdio();
     });
   }
 
   ScrollController _scrollController = ScrollController();
   _scrollToBottom() {
-    //_scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
   }
 
   @override

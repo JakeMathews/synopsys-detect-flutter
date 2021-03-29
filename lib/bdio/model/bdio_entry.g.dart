@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'entry.dart';
+part of 'bdio_entry.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:synopsys_detect_app/bdio/model/entry.dart';
+import 'package:synopsys_detect_app/bdio/model/bdio_entry.dart';
 
 class BdioViewer extends StatelessWidget {
   final List<Entry> bdioEntries;
