@@ -31,8 +31,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool scrollToBottom = true;
+
   List<Entry> bdioEntries = [];
-  DetectConsoleState detectConsoleState = new DetectConsoleState(true);
+  DetectConsoleState detectConsoleState = new DetectConsoleState(scrollToBottom: true);
 
   void _runScan() async {
     var detectRunner = DetectRunner();
@@ -62,6 +64,23 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          Row(
+            children: [
+              Text("Scroll to bottom"),
+              Checkbox(
+                value: scrollToBottom,
+                onChanged: (value) {
+                  setState(() {
+                    scrollToBottom = value;
+                    detectConsoleState.shouldScrollToBottom(value);
+                  });
+                },
+              ),
+              Padding(padding: const EdgeInsets.all(20.0))
+            ],
+          )
+        ],
       ),
       body: Column(
         children: widgets,

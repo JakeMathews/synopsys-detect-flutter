@@ -16,8 +16,9 @@ class BdioService {
 
     var bdioFiles = bdioFinder.findMostRecentBdio(Directory("/Users/jakem/blackduck/runs"));
     var outputDirectory = Directory("out/");
-    outputDirectory.delete(recursive: true);
-    outputDirectory.create(recursive: true);
+    outputDirectory.listSync().forEach((element) {
+      element.deleteSync();
+    });
 
     for (var bdio2File in bdioFiles) {
       bdioExtractor.extractBdio(bdio2File, outputDirectory);

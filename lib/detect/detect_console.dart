@@ -17,10 +17,15 @@ class DetectConsole extends StatefulWidget {
 }
 
 class DetectConsoleState extends State<DetectConsole> {
-  bool scrollToBottom;
+  bool scrollToBottom = false;
   List<OutputLine> lines = [];
 
-  DetectConsoleState(this.scrollToBottom);
+  DetectConsoleState({this.scrollToBottom});
+
+  void shouldScrollToBottom(bool shouldScrollToBottom) {
+    scrollToBottom = shouldScrollToBottom;
+    if (scrollToBottom) _scrollToBottom();
+  }
 
   void addLines(List<OutputLine> lines) {
     setState(() {
