@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker_cross/file_picker_cross.dart';
 
-typedef NewDataCallback = void Function(OutputLine);
+import 'detect_console.dart';
 
 class OutputLine {
   final String data;

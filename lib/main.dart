@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:synopsys_detect_app/bdio/bdio_service.dart';
 import 'package:synopsys_detect_app/bdio/bdio_viewer.dart';
+import 'package:synopsys_detect_app/detect/detect_console.dart';
 
 import 'bdio/model/bdio_entry.dart';
-import 'detect.dart';
+import 'detect/detect.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,17 +31,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<OutputLine> lines = [];
   List<Entry> bdioEntries = [];
+  DetectConsoleState detectConsoleState = new DetectConsoleState(true);
 
   void _runScan() async {
     var detectRunner = DetectRunner();
-    await detectRunner.runScan((OutputLine newData) {
-      setState(() {
-        lines.add(newData);
-        _scrollToBottom();
-      });
-    });
+    await detectRunner.runScan(_newDataCallback);
 
     var bdioService = BdioService();
     setState(() {
@@ -48,30 +44,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  ScrollController _scrollController = ScrollController();
-  _scrollToBottom() {
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+  void _newDataCallback(OutputLine outputLine) {
+    setState(() {
+      detectConsoleState.addLines([outputLine]);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    var detectConsole = DetectConsole(detectConsoleState);
     var bdioWidget = BdioViewer(bdioEntries: bdioEntries);
 
-    var textWidgets = lines.map((line) {
-      var textStyle = TextStyle(color: line.isError ? Colors.red : Colors.black);
-      return Text(line.data, style: textStyle);
-    }).toList();
-
     List<Widget> widgets = [];
-
-    var detectOutput = Expanded(
-        child: ListView(
-      shrinkWrap: true,
-      children: textWidgets,
-      controller: _scrollController,
-    ));
-
-    widgets.add(detectOutput);
+    widgets.add(detectConsole);
     widgets.add(bdioWidget);
 
     return Scaffold(
