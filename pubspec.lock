@@ -249,6 +249,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_treeview:
+    dependency: "direct main"
+    description:
+      name: flutter_treeview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.0+1"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -260,7 +267,7 @@ packages:
       name: glob
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.0.1"
   graphs:
     dependency: transitive
     description:
@@ -323,7 +330,7 @@ packages:
       name: logging
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   matcher:
     dependency: transitive
     description:
@@ -435,7 +442,7 @@ packages:
       name: process
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.1"
+    version: "4.2.1"
   pub_semver:
     dependency: transitive
     description:
@@ -573,7 +580,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.4"
+    version: "2.0.5"
   xdg_directories:
     dependency: transitive
     description:

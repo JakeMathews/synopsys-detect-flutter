@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:synopsys_detect_app/bdio/bdio_data_holder.dart';
 import 'package:synopsys_detect_app/bdio/bdio_service.dart';
 import 'package:synopsys_detect_app/bdio/bdio_viewer.dart';
 import 'package:synopsys_detect_app/detect/detect_console.dart';
@@ -38,28 +39,32 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _runScan() async {
     var detectRunner = DetectRunner();
-    await detectRunner.runScan(_newDataCallback);
-
-    var bdioService = BdioService();
-    setState(() {
-      bdioEntries = bdioService.findMostRecentBdio();
+    await detectRunner.runScan((OutputLine outputLine) {
+      detectConsoleState.addLines([outputLine]);
     });
+
+    _showBdio();
   }
 
-  void _newDataCallback(OutputLine outputLine) {
+  void _showBdio() {
+    print("_showBdio");
+    var bdioService = BdioService();
     setState(() {
-      detectConsoleState.addLines([outputLine]);
+      print("Setting state");
+      bdioEntries = bdioService.findMostRecentBdio();
+      print("Updating bdio entries: $bdioEntries");
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var detectConsole = DetectConsole(detectConsoleState);
-    var bdioWidget = BdioViewer(bdioEntries: bdioEntries);
-
-    List<Widget> widgets = [];
-    widgets.add(detectConsole);
-    widgets.add(bdioWidget);
+    print("Rebuilding with new entries: $bdioEntries");
+    // var detectConsole = DetectConsole(detectConsoleState);
+    var bdioWidget = BdioViewer();
+    var bdioDataHolder = BdioDataHolder(
+      bdioEntries,
+      child: bdioWidget,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -67,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           Row(
             children: [
+              IconButton(icon: Icon(Icons.file_present), onPressed: () => _showBdio()),
               Text("Scroll to bottom"),
               Checkbox(
                 value: scrollToBottom,
@@ -83,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ),
       body: Column(
-        children: widgets,
+        children: [bdioDataHolder],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _runScan,

@@ -12,7 +12,7 @@ class BdioFinder {
   List<File> findMostRecentBdio(Directory runsDirectory) {
     var runDirectories = runsDirectory.listSync();
 
-    Directory mostRecentDirectory = null;
+    Directory mostRecentDirectory;
     for (var directoryEntity in runDirectories) {
       if (directoryEntity.statSync().type != FileSystemEntityType.directory) {
         continue;

@@ -24,7 +24,7 @@ class DetectConsoleState extends State<DetectConsole> {
 
   void shouldScrollToBottom(bool shouldScrollToBottom) {
     scrollToBottom = shouldScrollToBottom;
-    if (scrollToBottom) _scrollToBottom();
+    _scrollToBottom();
   }
 
   void addLines(List<OutputLine> lines) {
@@ -32,12 +32,14 @@ class DetectConsoleState extends State<DetectConsole> {
       this.lines.addAll(lines);
     });
 
-    if (scrollToBottom) _scrollToBottom();
+    _scrollToBottom();
   }
 
   ScrollController _scrollController = ScrollController();
   _scrollToBottom() {
-    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    if (scrollToBottom && lines.isNotEmpty) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
   }
 
   @override
