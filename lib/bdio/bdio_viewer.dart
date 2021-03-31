@@ -45,6 +45,7 @@ class BdioViewerState extends State<BdioViewer> {
         allowParentSelect: false,
         supportParentDoubleTap: false,
         onExpansionChanged: _expandNodeHandler,
+        theme: _createTreeViewTheme(),
         onNodeTap: (key) {
           setState(() {
             _treeViewController = _treeViewController.copyWith(selectedKey: key);
@@ -61,5 +62,32 @@ class BdioViewerState extends State<BdioViewer> {
   bool _isNodeExpanded(String nodeId) {
     bool nodeState = expandedMap[nodeId];
     return nodeState != null ? nodeState : false;
+  }
+
+  TreeViewTheme _createTreeViewTheme() {
+    return TreeViewTheme(
+      expanderTheme: ExpanderThemeData(
+        type: ExpanderType.chevron,
+        modifier: ExpanderModifier.circleOutlined,
+        position: ExpanderPosition.start,
+        color: Colors.deepPurple,
+        size: 20,
+      ),
+      labelStyle: TextStyle(
+        fontSize: 16,
+        letterSpacing: 0.3,
+      ),
+      parentLabelStyle: TextStyle(
+        fontSize: 16,
+        letterSpacing: 0.1,
+        fontWeight: FontWeight.w800,
+        color: Colors.red.shade600,
+      ),
+      iconTheme: IconThemeData(
+        size: 18,
+        color: Colors.grey.shade800,
+      ),
+      colorScheme: ColorScheme.light(),
+    );
   }
 }
