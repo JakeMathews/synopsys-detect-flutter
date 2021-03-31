@@ -1,12 +1,17 @@
 import 'dart:io';
 
+import 'package:glob/glob.dart';
+
 class BdioFinder {
+  final bdioFileGlob = Glob("/**/*.bdio");
+  final bdioEntryFileGlob = Glob("/**/bdio-entry-*.jsonld");
+
   List<File> findEntryFiles(Directory directory) {
-    return _searchForFiles(directory, ".jsonld");
+    return _searchForFiles(directory, bdioEntryFileGlob);
   }
 
   List<File> findBdioFiles(Directory directory) {
-    return _searchForFiles(directory, ".bdio");
+    return _searchForFiles(directory, bdioFileGlob);
   }
 
   List<File> findMostRecentBdio(Directory runsDirectory) {
@@ -29,16 +34,16 @@ class BdioFinder {
       }
     }
 
-    return _searchForFiles(mostRecentDirectory, ".bdio");
+    return _searchForFiles(mostRecentDirectory, bdioFileGlob);
   }
 
-  List<File> _searchForFiles(Directory directory, String fileExtension) {
+  List<File> _searchForFiles(Directory directory, Glob fileGlob) {
     List<File> files = [];
     List<FileSystemEntity> fileSystemEntities = directory.listSync(recursive: true);
 
     for (var entity in fileSystemEntities) {
       var file = File(entity.uri.path);
-      if (file.path.endsWith(fileExtension)) {
+      if (fileGlob.matches(file.absolute.path)) {
         files.add(file);
       }
     }

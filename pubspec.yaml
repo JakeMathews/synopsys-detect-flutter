@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  glob: any
   flutter_treeview: any
   json_annotation: 3.1.1
   archive: ^3.1.2
